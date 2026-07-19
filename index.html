@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FacturaYa | Facturas Gratis y Rápidas para USA</title>
+    <!-- Librería externa oficial para generar el PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            --primary: #0087ff;
+            --primary-hover: #006cdb;
+            --accent-yellow: #ffd000;
+            --accent-coral: #ff6b6b;
+            --bg-light: #f4f9fc;
+            --card-bg: #ffffff;
+            --text-dark: #2c3e50;
+            --text-muted: #7f8c8d;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding-bottom: 60px;
+        }
+
+        header {
+            background-color: var(--card-bg);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 15px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: #eef5f9;
+            padding: 5px;
+            border-radius: 30px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            border: none;
+            background: none;
+            padding: 10px;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: 25px;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .tab-btn.active {
+            background-color: var(--card-bg);
+            color: var(--primary);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .main-container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 15px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .ad-space {
+            background-color: #fcfcfc;
+            border: 2px dashed #d1dbe2;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: bold;
+            text-align: center;
+            padding: 15px;
+        }
+
+        .ad-top { width: 100%; min-height: 90px; }
+        .ad-sidebar { min-height: 250px; }
+
+        .ad-anchor {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            height: 60px;
+            background: #fff;
+            border-top: 2px solid #e2e8f0;
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+            border: 1px solid #eef2f5;
+        }
+
+        .card-title {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: var(--primary);
+            border-bottom: 2px solid #f4f9fc;
+            padding-bottom: 10px;
+        }
+
+        .app-section { display: none; }
+        .app-section.active { display: block; }
+
+        .form-group { margin-bottom: 15px; }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #dcdde1;
+            border-radius: 8px;
+            font-size: 15px;
+            background-color: #fafbfc;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            background-color: #fff;
+        }
+
+        .items-container { margin-top: 20px; }
+
+        .item-row {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .btn-danger {
+            background: var(--accent-coral);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .btn-add {
+            background: #e6f3ff;
+            color: var(--primary);
+            border: 2px dashed var(--primary);
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .totals-box {
+            background: #fff8e7;
+            border: 1px solid #ffe8b5;
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 20px;
+            text-align: right;
+        }
+
+        .totals-box p {
+            font-size: 16px;
+            margin-bottom: 0;
+        }
+
+        .totals-box .grand-total {
+            font-size: 22px;
+            font-weight: bold;
+            color: var(--text-dark);
+        }
+
+        .btn-download {
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        /* DISEÑO DE LA VISTA PREVIA IMPRESA */
+        #invoice-print-area {
+            display: none;
+            background: white;
+            padding: 40px;
+            color: #2d3748;
+        }
+
+        /* REGLAS ESTRICTAS DE IMPRESIÓN MIENTRAS SE GENERA EL PDF */
+        body.is-printing {
+            background: white !important;
+        }
+        body.is-printing header,
+        body.is-printing .ad-space,
+        body.is-printing .ad-anchor,
+        body.is-printing aside,
+        body.is-printing #facturador-section,
+        body.is-printing #calculadora-section {
+            display: none !important;
+        }
+        body.is-printing #invoice-print-area {
+            display: block !important;
+        }
+
+        /* CALCULADORA */
+        .calc-screen {
+            background: #2c3e50;
+            color: white;
+            font-size: 32px;
+            text-align: right;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            min-height: 80px;
+        }
+        .calc-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        .calc-btn {
+            padding: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            background: #eef2f5;
+        }
+        .calc-btn.op { background: #e6f3ff; color: var(--primary); }
+        .calc-btn.eq { background: var(--primary); color: white; grid-column: span 2; }
+
+        .affiliate-section {
+            margin-top: 25px;
+            background: #fffdf6;
+            border: 1px solid #f5ebd0;
+            border-radius: 12px;
+            padding: 15px;
+        }
+        .affiliate-title { font-size: 14px; font-weight: bold; margin-bottom: 10px; color: #b58900; }
+        .affiliate-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border: 1px solid #f0f0f0;
+            text-decoration: none;
+            color: var(--text-dark);
+            font-size: 14px;
+        }
+        .affiliate-item img { width: 40px; height: 40px; object-fit: cover; border-radius: 6px; }
+
+        @media (min-width: 768px) {
+            header { flex-direction: row; justify-content: space-between; padding: 15px 40px; }
+            .main-container { grid-template-columns: 2fr 1fr; padding: 30px 15px; }
+            .form-row { grid-template-columns: 1fr 1fr; }
+            .item-inputs { display: grid; grid-template-columns: 3fr 1fr 1fr; gap: 10px; }
+            .btn-danger { margin-top: 0; align-self: end; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">⚡ FacturaYa</div>
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="switchTab('facturador')">📝 Facturador</button>
+            <button class="tab-btn" onclick="switchTab('calculadora')">🧮 Calculadora</button>
+        </div>
+    </header>
+
+    <div class="main-container">
+        
+        <div class="ad-space ad-top" style="grid-column: 1 / -1;">
+            [ ESPACIO GOOGLE ADSENSE - BANNER ADAPTABLE ]
+        </div>
+
+        <main>
+            <!-- SECCIÓN DEL FACTURADOR -->
+            <div id="facturador-section" class="app-section active card">
+                <h2 class="card-title">Generador de Facturas Gratis</h2>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Tu Nombre / Negocio / Dirección / Tax ID</label>
+                        <input type="text" id="biz-info" placeholder="Ej. Pedro Construction LLC - EIN: 12-345678">
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre / Dirección del Cliente</label>
+                        <input type="text" id="client-info" placeholder="Ej. Rei Warehouse Inc. - Miami, FL">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Moneda</label>
+                        <select id="currency" onchange="calculateTotal()">
+                            <option value="$">USD ($)</option>
+                            <option value="€">EUR (€)</option>
+                            <option value="Mex$">MXN ($)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Fecha de Factura</label>
+                        <input type="date" id="invoice-date">
+                    </div>
+                </div>
+
+                <div class="items-container" id="items-list"></div>
+
+                <button class="btn-add" onclick="addItemRow()">➕ Añadir Concepto / Producto</button>
+
+                <div class="totals-box">
+                    <p class="grand-total">Total General: <span id="total-val">$0.00</span></p>
+                </div>
+
+                <button class="btn-download" onclick="exportToPDF()">📥 Descargar Factura PDF</button>
+            </div>
+
+            <!-- SECCIÓN DE LA CALCULADORA -->
+            <div id="calculadora-section" class="app-section card">
+                <h2 class="card-title">Calculadora Comercial Rápida</h2>
+                <div class="calc-screen" id="calc-display">0</div>
+                <div class="calc-grid">
+                    <button class="calc-btn op" onclick="clearCalc()">C</button>
+                    <button class="calc-btn op" style="grid-column: span 2;" onclick="pressOp('/')">/</button>
+                    <button class="calc-btn op" onclick="pressOp('*')">×</button>
+
+                    <button class="calc-btn" onclick="pressNum('7')">7</button>
+                    <button class="calc-btn" onclick="pressNum('8')">8</button>
+                    <button class="calc-btn" onclick="pressNum('9')">9</button>
+                    <button class="calc-btn op" onclick="pressOp('-')">-</button>
+
+                    <button class="calc-btn" onclick="pressNum('4')">4</button>
+                    <button class="calc-btn" onclick="pressNum('5')">5</button>
+                    <button class="calc-btn" onclick="pressNum('6')">6</button>
+                    <button class="calc-btn op" onclick="pressOp('+')">+</button>
+
+                    <button class="calc-btn" onclick="pressNum('1')">1</button>
+                    <button class="calc-btn" onclick="pressNum('2')">2</button>
+                    <button class="calc-btn" onclick="pressNum('3')">3</button>
+                    <button class="calc-btn eq" style="grid-row: span 2; height: 100%;" onclick="calculateCalc()">=</button>
+
+                    <button class="calc-btn" style="grid-column: span 2;" onclick="pressNum('0')">0</button>
+                    <button class="calc-btn" onclick="pressNum('.')">.</button>
+                </div>
+            </div>
+        </main>
+
+        <aside>
+            <div class="ad-space ad-sidebar" style="margin-bottom: 20px;">
+                [ ADSENSE - BANNER VERTICAL LATERAL ]
+            </div>
+
+            <div class="affiliate-section">
+                <div class="affiliate-title">⭐ Recomendados para tu Oficina</div>
+                <a href="#" class="affiliate-item" target="_blank">
+                    <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=80&auto=format&fit=crop" alt="Impresora">
+                    <div>
+                        <strong>Impresora Térmica WiFi</strong><br>
+                        <small style="color: #27ae60;">Ver precio en Amazon</small>
+                    </div>
+                </a>
+                <a href="#" class="affiliate-item" target="_blank">
+                    <img src="https://images.unsplash.com/photo-1531346878377-a5be20888e57?w=80&auto=format&fit=crop" alt="Agenda">
+                    <div>
+                        <strong>Organizador de Presupuesto</strong><br>
+                        <small style="color: #27ae60;">Ver precio en Amazon</small>
+                    </div>
+                </a>
+            </div>
+        </aside>
+
+    </div>
+
+    <!-- ÁREA DE RENDERIZADO EXCLUSIVA PARA EL PDF -->
+    <div id="invoice-print-area"></div>
+
+    <div class="ad-space ad-anchor">
+        [ ADSENSE - ANUNCIO FIJO INFERIOR MÓVIL ]
+    </div>
+
+    <script>
+        // Inicializar fecha de hoy por defecto al cargar la página
+        window.addEventListener('DOMContentLoaded', function() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('invoice-date').value = today;
+            addItemRow();
+        });
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.app-section').forEach(function(sec) { sec.classList.remove('active'); });
+            document.querySelectorAll('.tab-btn').forEach(function(btn) { btn.classList.remove('active'); });
+            document.getElementById(tabName + '-section').classList.add('active');
+        }
+
+        function addItemRow() {
+            const container = document.getElementById('items-list');
+            const rowId = Date.now() + Math.random();
+            
+            const rowDiv = document.createElement('div');
+            rowDiv.className = 'item-row';
+            rowDiv.id = 'row-' + rowId;
+            
+            rowDiv.innerHTML = 
+                '<div class="item-inputs">' +
+                    '<div class="form-group">' +
+                        '<label>Descripción</label>' +
+                        '<input type="text" class="item-desc" placeholder="Ej. Trabajo de Pintura">' +
+                    '</div>' +
+                    '<div class="form-group">' +
+                        '<label>Cant. / Horas</label>' +
+                        '<input type="number" class="item-qty" value="1" oninput="calculateTotal()">' +
+                    '</div>' +
+                    '<div class="form-group">' +
+                        '<label>Precio / Tarifa</label>' +
+                        '<input type="number" class="item-price" value="0" oninput="calculateTotal()">' +
+                    '</div>' +
+                '</div>' +
+                '<button class="btn-danger" onclick="removeItemRow(\'' + rowId + '\')">Eliminar</button>';
+            
+            container.appendChild(rowDiv);
+            calculateTotal();
+        }
+
+        function removeItemRow(id) {
+            const row = document.getElementById('row-' + id);
+            if(row) row.remove();
+            calculateTotal();
+        }
+
+        function calculateTotal() {
+            const currency = document.getElementById('currency').value;
+            let total = 0;
+            
+            document.querySelectorAll('.item-row').forEach(function(row) {
+                const qty = parseFloat(row.querySelector('.item-qty').value) || 0;
+                const price = parseFloat(row.querySelector('.item-price').value) || 0;
+                total += qty * price;
+            });
+            
+            document.getElementById('total-val').innerText = currency + total.toFixed(2);
+        }
+
+        function exportToPDF() {
+            const bizInfo = document.getElementById('biz-info').value || 'Sin especificar';
+            const clientInfo = document.getElementById('client-info').value || 'Sin especificar';
+            const currency = document.getElementById('currency').value;
+            const totalText = document.getElementById('total-val').innerText;
+            
+            // Obtener la fecha seleccionada y formatearla adecuadamente a MM/DD/YYYY
+            const rawDate = document.getElementById('invoice-date').value;
+            let formattedDate = new Date().toLocaleDateString();
+            if (rawDate) {
+                const parts = rawDate.split('-'); // [YYYY, MM, DD]
+                if (parts.length === 3) {
+                    formattedDate = parts[1] + '/' + parts[2] + '/' + parts[0];
+                }
+            }
+
+            let rowsHtml = '';
+            document.querySelectorAll('.item-row').forEach(function(row) {
+                const desc = row.querySelector('.item-desc').value || 'Concepto';
+                const qty = parseFloat(row.querySelector('.item-qty').value) || 0;
+                const price = parseFloat(row.querySelector('.item-price').value) || 0;
+                const totalItem = (qty * price).toFixed(2);
+
+                rowsHtml += '<tr style="border-bottom: 1px solid #edf2f7;">' +
+                    '<td style="padding: 12px; font-size: 14px; color: #2d3748; text-align: left;">' + desc + '</td>' +
+                    '<td style="padding: 12px; font-size: 14px; color: #2d3748; text-align: center;">' + qty + '</td>' +
+                    '<td style="padding: 12px; font-size: 14px; color: #2d3748; text-align: right;">' + currency + price.toFixed(2) + '</td>' +
+                    '<td style="padding: 12px; font-size: 14px; color: #2d3748; text-align: right; font-weight: bold;">' + currency + totalItem + '</td>' +
+                '</tr>';
+            });
+
+            const printArea = document.getElementById('invoice-print-area');
+            printArea.innerHTML = 
+                '<div style="max-width: 800px; margin: 0 auto; background: #ffffff;">' +
+                    '<table style="width: 100%; border-bottom: 3px solid #0087ff; padding-bottom: 20px; margin-bottom: 30px;">' +
+                        '<tr>' +
+                            '<td style="vertical-align: top; text-align: left;">' +
+                                '<span style="font-size: 28px; font-weight: bold; color: #0087ff;">⚡ FacturaYa</span>' +
+                                '<p style="font-size: 12px; color: #718096; margin-top: 5px; margin-bottom: 0;">Documento de Facturación Comercial Oficial</p>' +
+                            '</td>' +
+                            '<td style="text-align: right; vertical-align: top;">' +
+                                '<h1 style="font-size: 32px; font-weight: 300; color: #a0aec0; margin: 0; letter-spacing: 1px;">INVOICE</h1>' +
+                                '<p style="font-size: 14px; color: #4a5568; margin-top: 5px; margin-bottom: 0;">Fecha: <strong>' + formattedDate + '</strong></p>' +
+                            '</td>' +
+                        '</tr>' +
+                    '</table>' +
+                    '<table style="width: 100%; margin-bottom: 40px; border-collapse: separate;">' +
+                        '<tr>' +
+                            '<td style="width: 48%; background: #f7fafc; padding: 15px; border-radius: 8px; border-left: 4px solid #0087ff; vertical-align: top; text-align: left;">' +
+                                '<h3 style="font-size: 11px; text-transform: uppercase; color: #a0aec0; margin-top: 0; margin-bottom: 8px; letter-spacing: 0.5px;">De (Emisor):</h3>' +
+                                '<p style="font-size: 14px; font-weight: bold; color: #2d3748; line-height: 1.4; margin: 0; white-space: pre-wrap;">' + bizInfo + '</p>' +
+                            '</td>' +
+                            '<td style="width: 4px;"></td>' +
+                            '<td style="width: 48%; background: #f7fafc; padding: 15px; border-radius: 8px; border-left: 4px solid #718096; vertical-align: top; text-align: left;">' +
+                                '<h3 style="font-size: 11px; text-transform: uppercase; color: #a0aec0; margin-top: 0; margin-bottom: 8px; letter-spacing: 0.5px;">Para (Cliente):</h3>' +
+                                '<p style="font-size: 14px; font-weight: bold; color: #2d3748; line-height: 1.4; margin: 0; white-space: pre-wrap;">' + clientInfo + '</p>' +
+                            '</td>' +
+                        '</tr>' +
+                    '</table>' +
+                    '<table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">' +
+                        '<thead>' +
+                            '<tr style="background: #0087ff; color: #ffffff;">' +
+                                '<th style="padding: 12px; text-align: left; font-size: 13px; text-transform: uppercase; font-weight: 600;">Descripción del Concepto</th>' +
+                                '<th style="padding: 12px; text-align: center; font-size: 13px; text-transform: uppercase; font-weight: 600; width: 80px;">Cant.</th>' +
+                                '<th style="padding: 12px; text-align: right; font-size: 13px; text-transform: uppercase; font-weight: 600; width: 120px;">Precio Unit.</th>' +
+                                '<th style="padding: 12px; text-align: right; font-size: 13px; text-transform: uppercase; font-weight: 600; width: 120px;">Total Item</th>' +
+                            '</tr>' +
+                        '</thead>' +
+                        '<tbody>' + rowsHtml + '</tbody>' +
+                    '</table>' +
+                    
+                    '<table style="width: 280px; margin-left: auto; margin-right: 0; background: #f7fafc; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0; border-collapse: collapse;">' +
+                        '<tr>' +
+                            '<td style="font-size: 18px; font-weight: bold; color: #2d3748; text-align: left;">Total General:</td>' +
+                            '<td style="font-size: 18px; font-weight: bold; color: #0087ff; text-align: right;">' + totalText + '</td>' +
+                        '</tr>' +
+                    '</table>' +
+                    
+                    '<div style="text-align: center; margin-top: 70px; border-top: 1px solid #e2e8f0; padding-top: 20px; color: #a0aec0; font-size: 12px;">' +
+                        'Gracias por su preferencia. Documento emitido con FacturaYa.' +
+                    '</div>' +
+                '</div>';
+
+            document.body.classList.add('is-printing');
+
+            const safeFileName = (bizInfo.split('\n')[0] || 'Factura').replace(/[^a-zA-Z0-9]/g, '_');
+            const opt = {
+                margin:       15,
+                filename:     'Factura_' + safeFileName + '.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, logging: false },
+                jsPDF:        { unit: 'mm', format: 'letter', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(printArea).save().then(function() {
+                document.body.classList.remove('is-printing');
+                printArea.innerHTML = '';
+            }).catch(function(err) {
+                console.error("Error:", err);
+                document.body.classList.remove('is-printing');
+            });
+        }
+
+        // CALCULADORA COMERCIAL
+        let calcCurrent = '0', calcOp = null, calcPrev = null;
+        function updateDisplay() { document.getElementById('calc-display').innerText = calcCurrent; }
+        function pressNum(num) {
+            if (calcCurrent === '0' && num !== '.') calcCurrent = num;
+            else calcCurrent += num;
+            updateDisplay();
+        }
+        function clearCalc() { calcCurrent = '0'; calcOp = null; calcPrev = null; updateDisplay(); }
+        function pressOp(op) { calcPrev = calcCurrent; calcOp = op; calcCurrent = '0'; }
+        function calculateCalc() {
+            if (!calcOp || !calcPrev) return;
+            let res = 0; const p = parseFloat(calcPrev), c = parseFloat(calcCurrent);
+            if (calcOp === '+') res = p + c;
+            if (calcOp === '-') res = p - c;
+            if (calcOp === '*') res = p * c;
+            if (calcOp === '/') res = p / c;
+            calcCurrent = res.toString(); calcOp = null; updateDisplay();
+        }
+    </script>
+</body>
+</html>
